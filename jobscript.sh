@@ -1,7 +1,7 @@
 #!/bin/sh
 ### General options
 ### –- specify queue --
-#BSUB -q gpum2050
+#BSUB -q gpuv100
 ##BSUB -q gpuk80
 ### -- set the job Name --
 #BSUB -J Colorization_TESTFORNOW
@@ -24,7 +24,7 @@
 ### -- Specify the output and error file. %J is the job-id --
 ### -- -o and -e mean append, -oo and -eo mean overwrite --
 #BSUB -o gpu-%J.out
-#BSUB -e gpu_%J.err
+####BSUB -e gpu_%J.err
 # -- end of LSF options --
 
 nvidia-smi
@@ -34,4 +34,4 @@ module load course.02456/20181201
 /appl/cuda/9.1/samples/bin/x86_64/linux/release/deviceQuery
 
 # commands to execute
-# colorizer.py
+python3 __main__.py --epochs=10 --images-path=data
