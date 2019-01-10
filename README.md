@@ -20,4 +20,4 @@ This will send the job to the node configured in the job script.
 The job script is configured to save the outputs of the program it executes in
 a file named `gpu-id.out`. `id` is the job id on the gpu-node.
 
-<a name="footnote">1</a>: DTU's guide for [Using GPUs under LSF10](https://www.hpc.dtu.dk/?page_id=2759)
+<a name="footnote">[1]</a>: DTU's guide for [Using GPUs under LSF10](https://www.hpc.dtu.dk/?page_id=2759)
