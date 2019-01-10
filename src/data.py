@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from keras.preprocessing.image import img_to_array, load_img
+from keras_preprocessing.image import img_to_array, load_img
 from torch.utils.data import Dataset
 
 
