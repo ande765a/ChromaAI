@@ -13,6 +13,7 @@ parser.add_argument("--save", type=str, default=None)
 parser.add_argument("--save-frequency", type=int, default=10)
 parser.add_argument("--device", type=str, help="What device to use. Ex. 'cuda' or 'cpu'")
 parser.add_argument("--learning-rate", type=float, default=1e-3)
+parser.add_argument("--num-workers", type=int, default=1)
 parser.add_argument("--batch-size", type=int, default=32)
 parser.add_argument("--epochs", type=int, default=100)
 parser.add_argument("--shuffle", type=bool, default=True)
@@ -37,6 +38,7 @@ if __name__ == "__main__":
             learning_rate=args.learning_rate,
             batch_size=args.batch_size,
             num_epochs=args.epochs,
+            num_workers=args.num_workers,
             shuffle=args.shuffle)
     else:
         print("Unknown mode")
