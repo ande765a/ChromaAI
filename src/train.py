@@ -2,6 +2,7 @@
 """# Import dependencies"""
 
 import os
+import math
 import numpy as np
 import torch
 import torch.nn as nn
@@ -17,13 +18,18 @@ from skimage.color import rgb2lab
 from skimage.io import imsave
 
 
-def train(images_path,
-          device,
-          batch_size=32,
-          shuffle=True,
-          num_workers=4,
-          num_epochs=10,
-          learning_rate=1e-3):
+def train(
+        images_path,
+        device,
+        load=None,
+        batch_size=32,
+        shuffle=True,
+        num_workers=4,
+        num_epochs=10,
+        learning_rate=1e-3,
+        save=None,
+        save_frequency=10  # Save after 10 epochs
+):
 
     images_dataset = {
         x: ImageDataset(
@@ -46,6 +52,10 @@ def train(images_path,
     # Make instance of model
     colorizer = Colorizer().to(device)
 
+    if load != None:
+        print("Loading model from: {}".format(load))
+        colorizer.load_state_dict(torch.load(load))
+
     # Loss function
     criterion = nn.MSELoss()
 
@@ -53,33 +63,45 @@ def train(images_path,
     optimizer = optim.Adam(colorizer.parameters(), lr=learning_rate)
 
     # Train our model
-    loss_history = []
+    best_epoch_test_loss = math.inf
     for epoch in range(num_epochs):
         print("Epoch {}/{}".format(epoch + 1, num_epochs))
 
-        running_loss = 0.0
+        running_train_loss = 0.0
+        running_test_loss = 0.0
 
-        for phase in ["train"]:
+        for phase in ["train", "test"]:
+
+            if phase == "train":
+                colorizer.train()
+            elif phase == "test":
+                colorizer.eval()
 
             for L, AB in images[phase]:
                 L = L.to(device)
                 AB = AB.to(device)
-
-                optimizer.zero_grad()
                 AB_pred = colorizer(L)
                 loss = criterion(AB_pred, AB)
-                #loss_history.append(loss.item())
-                loss.backward()
-                optimizer.step()
 
-                running_loss += loss.item() * L.size(0)
+                if phase == "train":
+                    optimizer.zero_grad()
+                    loss.backward()
+                    optimizer.step()
+                    running_train_loss += loss.item() * L.size(0)
+                elif phase == "test":
+                    running_test_loss += loss.item() * L.size(0)
 
-        epoch_loss = running_loss / len(images_dataset)
-        loss_history.append(epoch_loss)
-        print("Loss: {}".format(epoch_loss))
+        epoch_train_loss = running_train_loss / len(images_dataset)
+        epoch_test_loss = running_test_loss / len(images_dataset)
+        print("Train loss: {}".format(epoch_train_loss))
+        print("Test loss: {}".format(epoch_test_loss))
+
+        if epoch % save_frequency == 0 and epoch_test_loss < best_epoch_test_loss and save != None:
+            print("Achieved best test loss. Saving model.")
+            best_epoch_test_loss = epoch_test_loss
+            torch.save(colorizer.state_dict(), save)
+
         print("-" * 30)
-
-    #torch.save(colorizer.state_dict(), "/content/drive/My Drive/model-2019-01-10-1100")
 
 
 #with torch.no_grad():
