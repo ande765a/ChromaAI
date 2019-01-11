@@ -20,11 +20,13 @@ parser.add_argument("--shuffle", type=bool, default=True)
 if __name__ == "__main__":
     args = parser.parse_args()
 
+    device = torch.device(args.device) if args.device else torch.device("cpu")
+
     if args.mode == "eval":
-        eval(args.images_path, load=args.load, output=args.output, batch_size=args.batch_size)
+        eval(args.images_path, device=device, load=args.load, output=args.output, batch_size=args.batch_size)
 
     elif args.mode == "train":
-        device = torch.device(args.device) if args.device else torch.device("cpu")
+        
 
         train(
             args.images_path,

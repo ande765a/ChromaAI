@@ -10,8 +10,7 @@ from skimage.color import lab2rgb
 from skimage.io import imsave
 from model import Colorizer
 
-def eval(images_path,load,output,batch_size=8):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def eval(images_path,load,output,device,batch_size=8):
     colorizer = Colorizer().to(device)
     colorizer.load_state_dict(torch.load(load, map_location=device))
 
