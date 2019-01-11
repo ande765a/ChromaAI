@@ -1,7 +1,7 @@
 import os
 import torch
 import argparse
-from src.train import train
+from train import train
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--images-path", type=str, help="")

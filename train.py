@@ -7,9 +7,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from .preprocessing import ToLAB, ReshapeChannelFirst, ToTensor
-from .data import ImageDataset
-from .model import Colorizer
+from preprocessing import ToLAB, ReshapeChannelFirst, ToTensor
+from data import ImageDataset
+from model import Colorizer
 
 from torchvision import transforms
 from torch.utils.data import DataLoader
