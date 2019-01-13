@@ -47,11 +47,13 @@ def train(
     }
 
     # Make instance of model
-    colorizer = Colorizer().to(device)
+    colorizer = Colorizer()
 
     if load != None:
         print("Loading model from: {}".format(load))
         colorizer.load_state_dict(torch.load(load))
+	
+    colorizer = colorizer.to(device)
 
     # Loss function
     criterion = nn.MSELoss()
@@ -67,13 +69,15 @@ def train(
         running_test_loss = 0.0
 
         for phase in ["train", "test"]:
+            #print(phase)
 
             if phase == "train":
                 colorizer.train()
             elif phase == "test":
                 colorizer.eval()
 
-            for L, AB in images[phase]:
+            for i,(L, AB) in enumerate(images[phase]):
+                #print(i)
                 L = L.to(device)
                 AB = AB.to(device)
                 AB_pred = colorizer(L)
