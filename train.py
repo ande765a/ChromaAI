@@ -28,13 +28,15 @@ def train(
         save_frequency  # Save after 10 epochs
 ):
 
+    phases = ["train", "validate"]
+
     images_dataset = {
         x: ImageDataset(
             os.path.join(images_path, x),
             transform=transforms.Compose(
                 [ToLAB(), ReshapeChannelFirst(),
                  ToTensor()]))
-        for x in ["train", "test"]
+        for x in phases
     }
 
     images = {
@@ -43,7 +45,7 @@ def train(
             batch_size=batch_size,
             shuffle=shuffle,
             num_workers=num_workers)
-        for x in ["train", "test"]
+        for x in phases
     }
 
     # Make instance of model
@@ -66,18 +68,15 @@ def train(
         print("Epoch {}/{}".format(epoch + 1, num_epochs))
 
         running_train_loss = 0.0
-        running_test_loss = 0.0
+        running_validation_loss = 0.0
 
-        for phase in ["train", "test"]:
-            #print(phase)
-
+        for phase in phases:
             if phase == "train":
                 colorizer.train()
-            elif phase == "test":
+            elif phase == "validate":
                 colorizer.eval()
 
-            for i,(L, AB) in enumerate(images[phase]):
-                #print(i)
+            for L, AB in images[phase]:
                 L = L.to(device)
                 AB = AB.to(device)
                 AB_pred = colorizer(L)
@@ -88,18 +87,23 @@ def train(
                     loss.backward()
                     optimizer.step()
                     running_train_loss += loss.item() * L.size(0)
-                elif phase == "test":
-                    running_test_loss += loss.item() * L.size(0)
+                elif phase == "validate":
+                    running_validation_loss += loss.item() * L.size(0)
 
         epoch_train_loss = running_train_loss / len(images_dataset)
-        epoch_test_loss = running_test_loss / len(images_dataset)
+        epoch_validation_loss = running_validation_loss / len(images_dataset)
         print("Train loss: {}".format(epoch_train_loss))
-        print("Test loss: {}".format(epoch_test_loss))
+        print("Validation loss: {}".format(epoch_validation_loss))
 
         if save != None and epoch % save_frequency == 0:
             print("Saving model.")
             torch.save(colorizer.state_dict(), save)
 
         print("-" * 30)
+    
+    if save != None:
+        print("Saving final model.")
+        torch.save(colorizer.state_dict(), save)
+    
 
 
