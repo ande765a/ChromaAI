@@ -5,15 +5,14 @@ A deep neural network for colorizing greyscale images. DTU Project.
 To submit at job to DTU's HPC GPU `gpuv100` node, login to one of the following 
 nodes: `login2.hpc.dtu.dk`, `login3.hpc.dtu.dk` or `login3.gbar.dtu.dk` via an 
 ssh connection as follows.
-```
+```bash
 ssh user@login2.hpc.dtu.dk
 ```
 where `user` is either your credentials (for employees) or studentid.
 From here use the command `linuxsh` to go from the login-node to a 
-general-purpose-node. Here you can execute the `jobscript.sh` with the following
-command
-```
-bsub < jobscript.sh
+general-purpose-node. Here you can execute one of the jobscripts `jobscript_train_wide.sh` or `jobscript_train_narrow.sh` with the following command
+```bash
+bsub < jobscript_train_wide.sh
 ```
 This will send the job to the node configured in the job script.
 
