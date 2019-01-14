@@ -28,7 +28,7 @@ def train(
         save_frequency  # Save after 10 epochs
 ):
 
-    phases = ["train", "validate"]
+    phases = ["training", "validation"]
 
     images_dataset = {
         x: ImageDataset(
@@ -71,9 +71,9 @@ def train(
         running_validation_loss = 0.0
 
         for phase in phases:
-            if phase == "train":
+            if phase == "training":
                 colorizer.train()
-            elif phase == "validate":
+            elif phase == "validation":
                 colorizer.eval()
 
             for L, AB in images[phase]:
@@ -82,17 +82,17 @@ def train(
                 AB_pred = colorizer(L)
                 loss = criterion(AB_pred, AB)
 
-                if phase == "train":
+                if phase == "training":
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
                     running_train_loss += loss.item() * L.size(0)
-                elif phase == "validate":
+                elif phase == "validation":
                     running_validation_loss += loss.item() * L.size(0)
 
         epoch_train_loss = running_train_loss / len(images_dataset)
         epoch_validation_loss = running_validation_loss / len(images_dataset)
-        print("Train loss: {}".format(epoch_train_loss))
+        print("Training loss: {}".format(epoch_train_loss))
         print("Validation loss: {}".format(epoch_validation_loss))
 
         if save != None and epoch % save_frequency == 0:
