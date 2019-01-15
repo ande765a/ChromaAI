@@ -9,6 +9,7 @@ from keras_preprocessing.image import array_to_img
 from skimage.color import lab2rgb
 from skimage.io import imsave
 from model import Colorizer
+from stats import calculateStats
 
 def eval(images_path,load,output,device,batch_size=8):
     colorizer = Colorizer().to(device)
@@ -32,6 +33,13 @@ def eval(images_path,load,output,device,batch_size=8):
         L = L.cpu()
         output_images = torch.cat((L * 100, AB_pred * 128), dim=1).double()
         output_images = output_images.numpy().transpose((0, 2, 3, 1))
+
+        #mean_error, std_dev, lower_bound, upper_bound = calculateStats(images, output_images, batch_size, 1.96)
+        
         for i, array_image in enumerate(output_images):
             output_image = lab2rgb(array_image)
             imsave(os.path.join(output, "{}.png".format(i)), output_image)
+
+    #print("Sample mean error: %f" % mean_error)
+    #print("Standard deviation: %f" % std_dev)
+    #print("Confidence interval for true mean: [%f ; %f]" % (lower_bound, upper_bound))
