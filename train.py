@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.optim as optim
 from preprocessing import ToLAB, ReshapeChannelFirst, ToTensor
 from data import ImageDataset
-from model import Colorizer
+from model import models
 
 from torchvision import transforms
 from torch.utils.data import DataLoader
@@ -18,6 +18,7 @@ from torch.utils.data import DataLoader
 def train(
         images_path,
         device,
+        model,
         load,
         batch_size,
         shuffle,
@@ -49,12 +50,12 @@ def train(
     }
 
     # Make instance of model
-    colorizer = Colorizer()
+    colorizer = models[model]()
 
     if load != None:
         print("Loading model from: {}".format(load))
         colorizer.load_state_dict(torch.load(load))
-	
+
     colorizer = colorizer.to(device)
 
     # Loss function
@@ -100,10 +101,7 @@ def train(
             torch.save(colorizer.state_dict(), save)
 
         print("-" * 30)
-    
+
     if save != None:
         print("Saving final model.")
         torch.save(colorizer.state_dict(), save)
-    
-
-

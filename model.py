@@ -1,7 +1,7 @@
 import torch.nn as nn
 
 
-class Colorizer(nn.Module):
+class ColorizerV1(nn.Module):
     def __init__(self):
         super(Colorizer, self).__init__()
 
@@ -32,3 +32,6 @@ class Colorizer(nn.Module):
     def forward(self, input):
         downsampled = self.downsample(input)
         return self.upsample(downsampled)
+
+
+models = {"v1": ColorizerV1}
