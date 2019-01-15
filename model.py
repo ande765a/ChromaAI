@@ -203,9 +203,10 @@ class ColorizerUNetV1(nn.Module):
         self.dropout1 = nn.Dropout2d(0.2)
         self.deconv2, self.conv2 = self.up(128, 64)
         self.deconv3, self.conv3 = self.up(64, 32)
+        self.deconv4, self.conv4 = self.up(32, 16, 1)
 
-        self.conv4 = nn.Sequential(
-            nn.Conv2d(32, 2, kernel_size=3, padding=1),
+        self.conv5 = nn.Sequential(
+            nn.Conv2d(16, 2, kernel_size=3, padding=1),
             nn.Tanh()
         )
 
@@ -220,9 +221,9 @@ class ColorizerUNetV1(nn.Module):
             nn.ReLU()
         )
 
-    def up(self, in_dim, out_dim):
-        return nn.ConvTranspose2d(in_dim, in_dim, kernel_size=2), nn.Sequential(
-            nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1),
+    def up(self, in_dim, out_dim, prev=None):
+        return nn.ConvTranspose2d(in_dim, in_dim, kernel_size=2, stride=2), nn.Sequential(
+            nn.Conv2d(in_dim + (prev or out_dim), out_dim, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_dim),
             nn.ReLU(),
             nn.Conv2d(out_dim, out_dim, kernel_size=3, padding=1),
@@ -230,8 +231,8 @@ class ColorizerUNetV1(nn.Module):
             nn.ReLU()
         )
 
-    def forward(self, input):
-        down1 = self.down1(input)
+    def forward(self, inp):
+        down1 = self.down1(inp)
         down2 = self.down2(down1)
         down3 = self.down3(down2)
         down4 = self.down4(down3)
@@ -245,8 +246,11 @@ class ColorizerUNetV1(nn.Module):
 
         up3 = torch.cat((self.deconv3(up2), down1), dim=1)
         up3 = self.conv3(up3)
+
+        up4 = torch.cat((self.deconv4(up3), inp), dim=1)
+        up4 = self.conv4(up4)
         
-        output = self.conv4(up3)
+        output = self.conv5(up4)
 
         return output
 
@@ -281,7 +285,7 @@ class ColorizerUNetV2(nn.Module):
         )
 
     def up(self, in_dim, out_dim):
-        return nn.ConvTranspose2d(in_dim, in_dim, kernel_size=2), nn.Sequential(
+        return nn.ConvTranspose2d(in_dim, in_dim, kernel_size=2, stride=2), nn.Sequential(
             nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_dim),
             nn.ReLU(),
