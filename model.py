@@ -313,11 +313,45 @@ class ColorizerUNetV2(nn.Module):
 
         return output
 
+class Discriminator(nn.Module):
+  def __init__(self):
+    super(Discriminator, self).__init__()
+
+    self.conv = nn.Sequential(
+      *self.block(3, 16, bn=False),
+      *self.block(16, 32, bn=False),
+      *self.block(32, 64, bn=False),
+      *self.block(64, 128, bn=False),
+    )
+
+    self.dense = nn.Sequential(
+      nn.Linear(128 * ((256 // 2**4) ** 2), 1),
+      nn.Sigmoid()
+    )
+  
+  def block(self, in_dim, out_dim, bn):
+    block = [
+      nn.Conv2d(in_dim, out_dim, 3, 2, 1),
+      nn.LeakyReLU(0.2, inplace=True),
+      nn.Dropout(0.25)
+    ]
+    if bn:
+      block.append(nn.BatchNorm2d(out_dim, 0.8))
+
+    return block
+
+
+  def forward(self, inp):
+    out = self.conv(inp)
+    out = out.view((out.shape[0], -1))
+    validity = self.dense(out)
+    return validity
 
 models = {
     "v1": ColorizerV1,
     "v2": ColorizerV2,
     "v3": ColorizerV3,
     "unet-v1": ColorizerUNetV1,
-    "unet-v2": ColorizerUNetV2
+    "unet-v2": ColorizerUNetV2,
+    "discriminator": Discriminator
 }

@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.optim as optim
 from preprocessing import ToLAB, ReshapeChannelFirst, ToTensor
 from data import ImageDataset
-from model import models
+from model import models, Discriminator
 
 from torchvision import transforms
 from torch.utils.data import DataLoader
@@ -22,6 +22,7 @@ def train(
         load,
         batch_size,
         shuffle,
+        loss,
         num_workers,
         num_epochs,
         learning_rate,
@@ -59,11 +60,22 @@ def train(
 
     colorizer = colorizer.to(device)
 
-    # Loss function
-    criterion = nn.MSELoss()
+    discriminator = None
+    criterion = None
+    optimizer = None
+    d_optimizer = None
 
-    # Optimizer
-    optimizer = optim.Adam(colorizer.parameters(), lr=learning_rate)
+    if loss == "gan":
+        discriminator = Discriminator()
+        if load != None:
+            discriminator.load_state_dict(torch.load("{}.discriminator".format(load)))
+        discriminator = discriminator.to(device)
+        criterion = nn.BCELoss()
+        optimizer = optim.Adam(colorizer.parameters(), lr=learning_rate)
+        d_optimizer = optim.Adam(discriminator.parameters(), lr=learning_rate)
+    else:
+        criterion = nn.MSELoss()
+        optimizer = optim.Adam(colorizer.parameters(), lr=learning_rate)
 
     best_validation_loss = math.inf
 
@@ -84,15 +96,38 @@ def train(
                 L = L.to(device)
                 AB = AB.to(device)
                 AB_pred = colorizer(L)
-                loss = criterion(AB_pred, AB)
 
-                if phase == "training":
-                    optimizer.zero_grad()
-                    loss.backward()
-                    optimizer.step()
-                    running_train_loss += loss.item() * L.size(0)
-                elif phase == "validation":
-                    running_validation_loss += loss.item() * L.size(0)
+                if loss == "gan":
+                    LAB = torch.cat((L, AB), dim=1)
+                    LAB_gen = torch.cat((L, AB_pred), dim=1)
+                    
+                    if phase == "training":
+                        optimizer.zero_grad()
+                        g_loss = criterion(discriminator(LAB_gen), torch.ones((L.shape[0], 1)))
+                        g_loss.backward()
+                        optimizer.step()
+
+                        d_optimizer.zero_grad()
+                        real_loss = criterion(discriminator(LAB), torch.ones((L.shape[0], 1)))
+                        fake_loss = criterion(discriminator(LAB_gen.detach()), torch.zeros((L.shape[0], 1)))
+                        d_loss = (real_loss + fake_loss) / 2
+                        d_loss.backward()
+
+                        running_train_loss += g_loss.item() * L.size(0)
+
+                    elif phase == "validation":
+                        g_loss = criterion(discriminator(LAB_gen), torch.ones((L.shape[0], 1)))
+                        running_validation_loss += g_loss.item() * L.size(0)
+
+                else:
+                    _loss = criterion(AB_pred, AB)
+                    if phase == "training":
+                        optimizer.zero_grad()
+                        _loss.backward()
+                        optimizer.step()
+                        running_train_loss += _loss.item() * L.size(0)
+                    elif phase == "validation":
+                        running_validation_loss += _loss.item() * L.size(0)
 
 
         epoch_train_loss = running_train_loss / len(images_dataset["training"])
