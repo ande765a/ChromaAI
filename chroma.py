@@ -8,6 +8,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("mode", type=str, help="eval or train", default="eval")
 parser.add_argument("--output", type=str, help="Output images")
 parser.add_argument("--images-path", type=str, help="")
+parser.add_argument("--model", type=str, default="v1")
 parser.add_argument("--load", type=str, default=None)
 parser.add_argument("--save", type=str, default=None)
 parser.add_argument("--save-frequency", type=int, default=10)
@@ -24,14 +25,20 @@ if __name__ == "__main__":
     device = torch.device(args.device) if args.device else torch.device("cpu")
 
     if args.mode == "eval":
-        eval(args.images_path, device=device, load=args.load, output=args.output, batch_size=args.batch_size)
+        eval(
+            args.images_path,
+            device=device,
+            model=args.model,
+            load=args.load,
+            output=args.output,
+            batch_size=args.batch_size)
 
     elif args.mode == "train":
-        
 
         train(
             args.images_path,
             device=device,
+            model=args.model,
             load=args.load,
             save=args.save,
             save_frequency=args.save_frequency,

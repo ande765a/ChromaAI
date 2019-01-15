@@ -8,23 +8,21 @@ from torchvision import transforms
 from keras_preprocessing.image import array_to_img
 from skimage.color import lab2rgb
 from skimage.io import imsave
-from model import Colorizer
 from stats import calculateStats
+from model import models
 
-def eval(images_path,load,output,device,batch_size=8):
-    colorizer = Colorizer().to(device)
+
+def eval(images_path, model, load, output, device, batch_size=8):
+    colorizer = models[model]().to(device)
     colorizer.load_state_dict(torch.load(load, map_location=device))
 
     image_dataset = ImageDataset(
         images_path,
-        transform=transforms.Compose([
-            ToLAB(), 
-            ReshapeChannelFirst(),
-            ToTensor()
-        ])
-    )
+        transform=transforms.Compose(
+            [ToLAB(), ReshapeChannelFirst(),
+             ToTensor()]))
 
-    images = DataLoader(image_dataset,batch_size=batch_size)
+    images = DataLoader(image_dataset, batch_size=batch_size)
 
     with torch.no_grad():
         L, _ = next(iter(images))
