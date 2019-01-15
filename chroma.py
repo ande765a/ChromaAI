@@ -11,6 +11,7 @@ parser.add_argument("--images-path", type=str, help="")
 parser.add_argument("--model", type=str, default="v1")
 parser.add_argument("--load", type=str, default=None)
 parser.add_argument("--save", type=str, default=None)
+parser.add_argument("--save-best", type=str, default=None)
 parser.add_argument("--save-frequency", type=int, default=10)
 parser.add_argument("--device", type=str, help="What device to use. Ex. 'cuda' or 'cpu'")
 parser.add_argument("--learning-rate", type=float, default=1e-3)
@@ -41,6 +42,7 @@ if __name__ == "__main__":
             model=args.model,
             load=args.load,
             save=args.save,
+            save_best=args.save_best,
             save_frequency=args.save_frequency,
             learning_rate=args.learning_rate,
             batch_size=args.batch_size,

@@ -25,6 +25,7 @@ def train(
         num_workers,
         num_epochs,
         learning_rate,
+        save_best,
         save,
         save_frequency  # Save after 10 epochs
 ):
@@ -64,6 +65,8 @@ def train(
     # Optimizer
     optimizer = optim.Adam(colorizer.parameters(), lr=learning_rate)
 
+    best_validation_loss = math.inf
+
     # Train our model
     for epoch in range(num_epochs):
         print("Epoch {}/{}".format(epoch + 1, num_epochs))
@@ -96,6 +99,11 @@ def train(
         epoch_validation_loss = running_validation_loss / len(images_dataset["validation"])
         print("Training loss: {}".format(epoch_train_loss))
         print("Validation loss: {}".format(epoch_validation_loss))
+
+        if save_best != None and epoch_validation_loss < best_validation_loss:
+            print("Saving best model.")
+            best_validation_loss = epoch_validation_loss
+            torch.save(colorizer.state_dict(), save_best)
 
         if save != None and epoch % save_frequency == 0:
             print("Saving model.")
