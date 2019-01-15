@@ -11,6 +11,7 @@ parser.add_argument("--images-path", type=str, help="")
 parser.add_argument("--model", type=str, default="v1")
 parser.add_argument("--load", type=str, default=None)
 parser.add_argument("--save", type=str, default=None)
+parser.add_argument("--no-l", type=bool, default=False)
 parser.add_argument("--save-best", type=str, default=None)
 parser.add_argument("--save-frequency", type=int, default=10)
 parser.add_argument("--device", type=str, help="What device to use. Ex. 'cuda' or 'cpu'")
@@ -29,6 +30,7 @@ if __name__ == "__main__":
         eval(
             args.images_path,
             device=device,
+            no_l=args.no_l,
             model=args.model,
             load=args.load,
             output=args.output,

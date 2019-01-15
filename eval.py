@@ -12,7 +12,7 @@ from statistics import calculateStats
 from model import models
 
 
-def eval(images_path, model, load, output, device, batch_size=8):
+def eval(images_path, model, no_l, load, output, device, batch_size=8):
     colorizer = models[model]().to(device)
     colorizer.load_state_dict(torch.load(load, map_location=device))
 
@@ -29,7 +29,7 @@ def eval(images_path, model, load, output, device, batch_size=8):
         L = L.to(device)
         AB_pred = colorizer(L).cpu()
         L = L.cpu()
-        output_images = torch.cat((L * 100, AB_pred * 128), dim=1).double()
+        output_images = torch.cat(((torch.ones_like(L) * 0.5 if no_l else L) * 100, AB_pred * 128), dim=1).double()
         output_images = output_images.numpy().transpose((0, 2, 3, 1))
 
         #mean_error, std_dev, lower_bound, upper_bound = calculateStats(images, output_images, batch_size, 1.96)
