@@ -8,7 +8,7 @@ from torchvision import transforms
 from keras_preprocessing.image import array_to_img
 from skimage.color import lab2rgb
 from skimage.io import imsave
-from stats import calculateStats
+from statistics import calculateStats
 from model import models
 
 
