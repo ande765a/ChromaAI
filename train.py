@@ -29,7 +29,7 @@ def train(
         save_frequency  # Save after 10 epochs
 ):
 
-    phases = ["training", "validation"]
+    phases = ["validation", "training"]
 
     images_dataset = {
         x: ImageDataset(
@@ -91,8 +91,9 @@ def train(
                 elif phase == "validation":
                     running_validation_loss += loss.item() * L.size(0)
 
-        epoch_train_loss = running_train_loss / len(images_dataset)
-        epoch_validation_loss = running_validation_loss / len(images_dataset)
+
+        epoch_train_loss = running_train_loss / len(images_dataset["training"])
+        epoch_validation_loss = running_validation_loss / len(images_dataset["validation"])
         print("Training loss: {}".format(epoch_train_loss))
         print("Validation loss: {}".format(epoch_validation_loss))
 
