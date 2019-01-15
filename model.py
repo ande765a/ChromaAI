@@ -3,7 +3,7 @@ import torch.nn as nn
 
 class ColorizerV1(nn.Module):
     def __init__(self):
-        super(Colorizer, self).__init__()
+        super(ColorizerV1, self).__init__()
 
         self.downsample = nn.Sequential(
             nn.Conv2d(1, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64),
