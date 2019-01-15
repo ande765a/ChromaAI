@@ -126,7 +126,71 @@ class ColorizerV2(nn.Module):
         return self.upsample(downsampled)
 
 
+class ColorizerV3(nn.Module):
+    def __init__(self):
+        super(ColorizerV3, self).__init__()
+
+        self.downsample = nn.Sequential(
+            nn.Conv2d(1, 16, kernel_size=3, padding=1), 
+            nn.BatchNorm2d(16),
+            nn.ReLU(), 
+            
+            nn.Conv2d(16, 16, kernel_size=3, padding=1, stride=2),
+            nn.BatchNorm2d(16), 
+            nn.ReLU(),
+            
+            nn.Conv2d(16, 32, kernel_size=3, padding=1), 
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            
+            nn.Conv2d(32, 32, kernel_size=3, padding=1, stride=2),
+            nn.BatchNorm2d(32), 
+            nn.ReLU(),
+            
+            nn.Conv2d(32, 64, kernel_size=3, padding=1), 
+            nn.BatchNorm2d(64),
+            nn.ReLU(), 
+            
+            nn.Conv2d(64, 64, kernel_size=3, padding=1, stride=2),
+            nn.BatchNorm2d(64), 
+            nn.ReLU(),
+            
+            nn.Conv2d(64, 256, kernel_size=3, padding=1), 
+            nn.BatchNorm2d(256),
+            nn.ReLU(), 
+            
+            nn.Conv2d(256, 64, kernel_size=3, padding=1),
+            nn.BatchNorm2d(64), 
+            nn.ReLU(),
+            
+            nn.Conv2d(64, 32, kernel_size=3, padding=1), 
+            nn.BatchNorm2d(32),
+            nn.ReLU()
+        )
+
+        self.upsample = nn.Sequential(
+            nn.ConvTranspose2d(32, 32, kernel_size=2, stride=2),
+            nn.Conv2d(32, 16, kernel_size=3, padding=1), 
+            nn.BatchNorm2d(16),
+            nn.ReLU(), 
+
+            nn.ConvTranspose2d(16, 16, kernel_size=2, stride=2),
+            nn.Conv2d(16, 8, kernel_size=3, padding=1), 
+            nn.BatchNorm2d(8),
+            nn.ReLU(), 
+            
+            nn.ConvTranspose2d(8, 8, kernel_size=2, stride=2),
+            nn.Conv2d(8, 2, kernel_size=3, padding=1), 
+            nn.Tanh()
+        )
+
+    def forward(self, input):
+        downsampled = self.downsample(input)
+        return self.upsample(downsampled)
+
+
 models = {
     "v1": ColorizerV1,
-    "v2": ColorizerV2    
+    "v2": ColorizerV2,
+    "v3": ColorizerV3   
 }
