@@ -267,16 +267,16 @@ class ColorizerUNetV2(nn.Module):
         self.deconv1, self.conv1 = self.up(64, 32)
         self.dropout1 = nn.Dropout2d(0.2)
         self.deconv2, self.conv2 = self.up(32, 16)
-
-        self.conv3 = nn.Sequential(
-            nn.Conv2d(16, 2, kernel_size=3, padding=1),
+        self.deconv3, self.conv3 = self.up(16, 8, 1)
+        self.conv4 = nn.Sequential(
+            nn.Conv2d(8, 2, kernel_size=3, padding=1),
             nn.Tanh()
         )
 
 
     def down(self, in_dim, out_dim):
         return nn.Sequential(
-            nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1, stride=1),
+            nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_dim),
             nn.ReLU(),
             nn.Conv2d(out_dim, out_dim, kernel_size=3, padding=1, stride=2),
@@ -284,9 +284,9 @@ class ColorizerUNetV2(nn.Module):
             nn.ReLU()
         )
 
-    def up(self, in_dim, out_dim):
+    def up(self, in_dim, out_dim, prev=None):
         return nn.ConvTranspose2d(in_dim, in_dim, kernel_size=2, stride=2), nn.Sequential(
-            nn.Conv2d(in_dim, out_dim, kernel_size=3, padding=1),
+            nn.Conv2d(in_dim + (prev or out_dim), out_dim, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_dim),
             nn.ReLU(),
             nn.Conv2d(out_dim, out_dim, kernel_size=3, padding=1),
@@ -294,8 +294,8 @@ class ColorizerUNetV2(nn.Module):
             nn.ReLU()
         )
 
-    def forward(self, input):
-        down1 = self.down1(input)
+    def forward(self, inp):
+        down1 = self.down1(inp)
         down2 = self.down2(down1)
         down3 = self.down3(down2)
 
@@ -305,8 +305,11 @@ class ColorizerUNetV2(nn.Module):
 
         up2 = torch.cat((self.deconv2(up1), down1), dim=1)
         up2 = self.conv2(up2)
+
+        up3 = torch.cat((self.deconv3(up2), inp), dim=1)
+        up3 = self.conv3(up3)
         
-        output = self.conv3(up2)
+        output = self.conv4(up3)
 
         return output
 
