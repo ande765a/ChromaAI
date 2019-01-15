@@ -10,7 +10,7 @@
 ### -- Select the resources: 1 gpu in exclusive process mode --
 #BSUB -gpu "num=1:mode=exclusive_process"
 ### -- set walltime limit: hh:mm --  maximum 24 hours for GPU-queues right now
-#BSUB -W 3:00
+#BSUB -W 7:00
 # request 16GB of memory
 #BSUB -R "rusage[mem=16GB]"
 ### -- set the email address --
@@ -35,4 +35,4 @@ module load cudnn
 /appl/cuda/9.1/samples/bin/x86_64/linux/release/deviceQuery
 
 # commands to execute
-python3 chroma.py train --epochs=200 --images-path=colorizer_data/all_categories --save=model.wide --save-frequency=5 --load=model.wide --device=cuda --num-workers=4
+python3 chroma.py train --epochs=500 --images-path=all_data/wide --save=model.wide --save-frequency=5 --device=cuda --num-workers=4
