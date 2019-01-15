@@ -1,6 +1,17 @@
 import torch
 from skimage.color import rgb2lab
 
+class Crop():
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def __call__(self, image):
+        pass
+        # Test
+        
+        #return image[]
+
 
 class ToLAB(object):
     def __call__(self, image):
