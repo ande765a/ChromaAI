@@ -108,14 +108,17 @@ def train(
                         LAB_gen = torch.cat((L, AB_pred), dim=1)
 
                         if phase == "training":
+                            valid = torch.ones((L.shape[0], 1)).to(device)
+                            invalid = torch.zeros((L.shape[0], 1)).to(device)
+
                             optimizer.zero_grad()
-                            g_loss = criterion(discriminator(LAB_gen), torch.ones((L.shape[0], 1)))
+                            g_loss = criterion(discriminator(LAB_gen), valid)
                             g_loss.backward()
                             optimizer.step()
 
                             d_optimizer.zero_grad()
-                            real_loss = criterion(discriminator(LAB), torch.ones((L.shape[0], 1)))
-                            fake_loss = criterion(discriminator(LAB_gen.detach()), torch.zeros((L.shape[0], 1)))
+                            real_loss = criterion(discriminator(LAB), valid)
+                            fake_loss = criterion(discriminator(LAB_gen.detach()), invalid)
                             d_loss = (real_loss + fake_loss) / 2
                             d_loss.backward()
 
@@ -155,7 +158,8 @@ def train(
                 torch.save(colorizer.state_dict(), save)
 
             print("-" * 30)
-    except:
+    except Exception as e:
+            print(e)
             print("Stopping training.")
             pass
 
