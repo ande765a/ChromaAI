@@ -139,6 +139,8 @@ class ColorizerV3(nn.Module):
             nn.Conv2d(16, 16, kernel_size=3, padding=1, stride=2),
             nn.BatchNorm2d(16), 
             nn.ReLU(),
+
+            nn.Dropout2d(0.1),
             
             nn.Conv2d(16, 32, kernel_size=3, padding=1), 
             nn.BatchNorm2d(32),
@@ -147,6 +149,8 @@ class ColorizerV3(nn.Module):
             nn.Conv2d(32, 32, kernel_size=3, padding=1, stride=2),
             nn.BatchNorm2d(32), 
             nn.ReLU(),
+
+            nn.Dropout2d(0.1),
             
             nn.Conv2d(32, 64, kernel_size=3, padding=1), 
             nn.BatchNorm2d(64),
@@ -155,14 +159,20 @@ class ColorizerV3(nn.Module):
             nn.Conv2d(64, 64, kernel_size=3, padding=1, stride=2),
             nn.BatchNorm2d(64), 
             nn.ReLU(),
+
+            nn.Dropout2d(0.1),
             
             nn.Conv2d(64, 256, kernel_size=3, padding=1), 
             nn.BatchNorm2d(256),
             nn.ReLU(), 
+
+            nn.Dropout2d(0.1),
             
             nn.Conv2d(256, 64, kernel_size=3, padding=1),
             nn.BatchNorm2d(64), 
             nn.ReLU(),
+
+            nn.Dropout2d(0.1),
             
             nn.Conv2d(64, 32, kernel_size=3, padding=1), 
             nn.BatchNorm2d(32),
@@ -175,10 +185,14 @@ class ColorizerV3(nn.Module):
             nn.BatchNorm2d(16),
             nn.ReLU(), 
 
+            nn.Dropout2d(0.1),
+
             nn.ConvTranspose2d(16, 16, kernel_size=2, stride=2),
             nn.Conv2d(16, 8, kernel_size=3, padding=1), 
             nn.BatchNorm2d(8),
             nn.ReLU(), 
+
+            nn.Dropout2d(0.1),
             
             nn.ConvTranspose2d(8, 8, kernel_size=2, stride=2),
             nn.Conv2d(8, 2, kernel_size=3, padding=1), 
@@ -200,7 +214,6 @@ class ColorizerUNetV1(nn.Module):
         self.down4 = self.down(128, 256)
 
         self.deconv1, self.conv1 = self.up(256, 128)
-        self.dropout1 = nn.Dropout2d(0.2)
         self.deconv2, self.conv2 = self.up(128, 64)
         self.deconv3, self.conv3 = self.up(64, 32)
         self.deconv4, self.conv4 = self.up(32, 16, 1)
@@ -218,7 +231,8 @@ class ColorizerUNetV1(nn.Module):
             nn.ReLU(),
             nn.Conv2d(out_dim, out_dim, kernel_size=3, padding=1, stride=2),
             nn.BatchNorm2d(out_dim),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Dropout2d(0.2)
         )
 
     def up(self, in_dim, out_dim, prev=None):
@@ -228,7 +242,8 @@ class ColorizerUNetV1(nn.Module):
             nn.ReLU(),
             nn.Conv2d(out_dim, out_dim, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_dim),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Dropout2d(0.2)
         )
 
     def forward(self, inp):
@@ -239,7 +254,6 @@ class ColorizerUNetV1(nn.Module):
 
         up1 = torch.cat((self.deconv1(down4), down3), dim=1)
         up1 = self.conv1(up1)
-        up1 = self.dropout1(up1)
 
         up2 = torch.cat((self.deconv2(up1), down2), dim=1)
         up2 = self.conv2(up2)
@@ -265,7 +279,6 @@ class ColorizerUNetV2(nn.Module):
         self.down3 = self.down(32, 64)
 
         self.deconv1, self.conv1 = self.up(64, 32)
-        self.dropout1 = nn.Dropout2d(0.2)
         self.deconv2, self.conv2 = self.up(32, 16)
         self.deconv3, self.conv3 = self.up(16, 8, 1)
         self.conv4 = nn.Sequential(
@@ -281,7 +294,8 @@ class ColorizerUNetV2(nn.Module):
             nn.ReLU(),
             nn.Conv2d(out_dim, out_dim, kernel_size=3, padding=1, stride=2),
             nn.BatchNorm2d(out_dim),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Dropout2d(0.2)
         )
 
     def up(self, in_dim, out_dim, prev=None):
@@ -291,7 +305,8 @@ class ColorizerUNetV2(nn.Module):
             nn.ReLU(),
             nn.Conv2d(out_dim, out_dim, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_dim),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Dropout2d(0.2)
         )
 
     def forward(self, inp):
@@ -301,7 +316,6 @@ class ColorizerUNetV2(nn.Module):
 
         up1 = torch.cat((self.deconv1(down3), down2), dim=1)
         up1 = self.conv1(up1)
-        up1 = self.dropout1(up1)
 
         up2 = torch.cat((self.deconv2(up1), down1), dim=1)
         up2 = self.conv2(up2)
@@ -332,8 +346,9 @@ class Discriminator(nn.Module):
   def block(self, in_dim, out_dim, bn):
     block = [
       nn.Conv2d(in_dim, out_dim, 3, 2, 1),
-      nn.LeakyReLU(0.2, inplace=True),
-      nn.Dropout(0.25)
+      nn.BatchNorm2d(out_dim),
+      nn.ReLU(inplace=True),
+      nn.Dropout(0.2)
     ]
     if bn:
       block.append(nn.BatchNorm2d(out_dim, 0.8))
