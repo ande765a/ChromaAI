@@ -14,6 +14,7 @@ from model import models
 
 def eval(images_path, model, no_l, load, output, device, batch_size=8):
     colorizer = models[model]().to(device)
+    colorizer.eval()
     colorizer.load_state_dict(torch.load(load, map_location=device))
 
     image_dataset = ImageDataset(
