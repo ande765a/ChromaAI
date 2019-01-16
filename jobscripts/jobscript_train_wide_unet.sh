@@ -35,4 +35,4 @@ module load cudnn
 /appl/cuda/9.1/samples/bin/x86_64/linux/release/deviceQuery
 
 # commands to execute
-python3 chroma.py train --model=unet-v1 --epochs=200 --images-path=all_data/wide --save=model.widev3 --save-frequency=5 --device=cuda --num-workers=4
+python3 chroma.py train --model=unet-v1 --epochs=200 --images-path=all_data/wide --save=model.wide.unet-v1 --save-best=model.wide.unet-v1.best --save-frequency=5 --device=cuda --num-workers=4
