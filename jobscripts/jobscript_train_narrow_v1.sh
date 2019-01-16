@@ -36,12 +36,12 @@ module load cudnn
 
 # commands to execute
 python3 chroma.py train \
-	--model v2 \
+	--model v1 \
 	--epochs 200 \
 	--images-path all_data/narrow \
-	--save models/model.narrow.v2 \
-	--save-best models/model.narrow.v2.best \
+	--save models/model.narrow.v1 \
+	--save-best models/model.narrow.v1.best \
 	--save-frequency 10 \
-	--log-output logs/model.narrow.v2.log \
+	--log-output logs/model.narrow.v1.log \
 	--device=cuda \
 	--num-workers=4
