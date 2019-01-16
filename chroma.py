@@ -11,6 +11,7 @@ parser.add_argument("--images-path", type=str, help="")
 parser.add_argument("--model", type=str, default="v1")
 parser.add_argument("--load", type=str, default=None)
 parser.add_argument("--save", type=str, default=None)
+parser.add_argument("--log-output", type=str, default=None)
 parser.add_argument("--loss", type=str, default="mse")
 parser.add_argument("--no-l", type=bool, default=False)
 parser.add_argument("--save-best", type=str, default=None)
@@ -45,6 +46,7 @@ if __name__ == "__main__":
             model=args.model,
             load=args.load,
             save=args.save,
+            log_output=args.log_output,
             loss=args.loss,
             save_best=args.save_best,
             save_frequency=args.save_frequency,
