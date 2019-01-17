@@ -82,7 +82,7 @@ def train(
 
     if log_output != None:
         with open(log_output, "w+") as log_file:
-            log_file.write("")
+            log_file.write("train,training_loss,validation_loss")
     
     try:
         # Train our model
@@ -158,8 +158,7 @@ def train(
                 torch.save(colorizer.state_dict(), save)
 
             print("-" * 30)
-    except Exception as e:
-            print(e)
+    except KeyboardInterrupt:
             print("Stopping training.")
             pass
 
