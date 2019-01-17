@@ -106,10 +106,10 @@ def train(
                     if loss == "gan":
                         LAB = torch.cat((L, AB), dim=1)
                         LAB_gen = torch.cat((L, AB_pred), dim=1)
+                        valid = torch.ones((L.shape[0], 1)).to(device)
+                        invalid = torch.zeros((L.shape[0], 1)).to(device)
 
                         if phase == "training":
-                            valid = torch.ones((L.shape[0], 1)).to(device)
-                            invalid = torch.zeros((L.shape[0], 1)).to(device)
 
                             optimizer.zero_grad()
                             g_loss = criterion(discriminator(LAB_gen), valid)
@@ -125,7 +125,7 @@ def train(
                             running_train_loss += g_loss.item() * L.size(0)
 
                         elif phase == "validation":
-                            g_loss = criterion(discriminator(LAB_gen), torch.ones((L.shape[0], 1)))
+                            g_loss = criterion(discriminator(LAB_gen), valid)
                             running_validation_loss += g_loss.item() * L.size(0)
 
                     else:
