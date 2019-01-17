@@ -57,7 +57,11 @@ def train(
 
     if load != None:
         print("Loading model from: {}".format(load))
-        colorizer.load_state_dict(torch.load(load))
+        try:
+            colorizer.load_state_dict(torch.load(load))
+        except:
+            print("Could not load model.")
+            pass
 
     colorizer = colorizer.to(device)
 
@@ -69,7 +73,11 @@ def train(
     if loss == "gan":
         discriminator = Discriminator()
         if load != None:
-            discriminator.load_state_dict(torch.load("{}.discriminator".format(load)))
+            try:
+                discriminator.load_state_dict(torch.load("{}.discriminator".format(load)))
+            except:
+                print("Could not load discriminator model.")
+                pass
         discriminator = discriminator.to(device)
         criterion = nn.BCELoss()
         optimizer = optim.Adam(colorizer.parameters(), lr=learning_rate)
