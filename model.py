@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torchvision
 
 class ColorizerV1(nn.Module):
     def __init__(self):
@@ -203,6 +204,45 @@ class ColorizerV3(nn.Module):
         downsampled = self.downsample(input)
         return self.upsample(downsampled)
 
+class ColorizerV4(nn.Module):
+    def __init__(self, pretrained=True, vgg11_requires_grad=False):
+        super(ColorizerV4, self).__init__()
+        vgg11 = torchvision.models.vgg11_bn(pretrained=True)
+
+        for param in vgg11.parameters():
+            param.requires_grad = vgg11_requires_grad
+
+        self.downsample = nn.Sequential(
+            nn.Conv2d(1, 3, kernel_size=3, padding=1),
+            nn.ReLU(inplace=True),
+            vgg11.features[0:21],
+            nn.Conv2d(512, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.Conv2d(256, 128, kernel_size=3, padding=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU()
+        )
+
+        self.upsample = nn.Sequential(
+            nn.ConvTranspose2d(128, 128, kernel_size=2, stride=2),
+            nn.Conv2d(128, 64, kernel_size=3, padding=1), 
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            
+            nn.ConvTranspose2d(64, 64, kernel_size=2, stride=2),
+            nn.Conv2d(64, 32, kernel_size=3, padding=1), 
+            nn.BatchNorm2d(32),
+            nn.ReLU(), 
+            
+            nn.ConvTranspose2d(32, 32, kernel_size=2, stride=2),
+            nn.Conv2d(32, 2, kernel_size=3, padding=1), 
+            nn.Tanh()
+        )
+
+    def forward(self, input):
+        downsampled = self.downsample(input)
+        return self.upsample(downsampled)
 
 class ColorizerUNetV1(nn.Module):
     def __init__(self):
@@ -366,6 +406,7 @@ models = {
     "v1": ColorizerV1,
     "v2": ColorizerV2,
     "v3": ColorizerV3,
+    "v4": ColorizerV4,
     "unet-v1": ColorizerUNetV1,
     "unet-v2": ColorizerUNetV2,
     "discriminator": Discriminator
