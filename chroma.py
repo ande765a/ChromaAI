@@ -3,6 +3,7 @@ import torch
 import argparse
 from train import train
 from eval import eval
+from stats import stats
 
 parser = argparse.ArgumentParser()
 parser.add_argument("mode", type=str, help="eval or train", default="eval")
@@ -55,5 +56,13 @@ if __name__ == "__main__":
             num_epochs=args.epochs,
             num_workers=args.num_workers,
             shuffle=args.shuffle)
+    elif args.mode == "stats":
+        stats(
+            args.images_path,
+            model=args.model,
+            device=device,
+            load=args.load,
+            log_output=args.log_output
+        )
     else:
         print("Unknown mode")
