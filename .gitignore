@@ -108,3 +108,5 @@ data
 results
 model.*
 all_data
+stats
+logs
