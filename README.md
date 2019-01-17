@@ -10,7 +10,7 @@ ssh user@login2.hpc.dtu.dk
 ```
 where `user` is either your credentials (for employees) or studentid.
 From here use the command `linuxsh` to go from the login-node to a 
-general-purpose-node. Here you can execute one of the jobscripts `jobscript_train_wide.sh` or `jobscript_train_narrow.sh` with the following command
+general-purpose-node. Here you can execute one of the jobscripts with the following command
 ```bash
 bsub < jobscript_train_wide.sh
 ```
