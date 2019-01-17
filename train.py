@@ -82,7 +82,7 @@ def train(
 
     if log_output != None:
         with open(log_output, "w+") as log_file:
-            log_file.write("train,training_loss,validation_loss")
+            log_file.write("train,training_loss,validation_loss\n")
     
     try:
         # Train our model
@@ -152,10 +152,16 @@ def train(
                 print("Saving best model.")
                 best_validation_loss = epoch_validation_loss
                 torch.save(colorizer.state_dict(), save_best)
+                
+                if loss == "gan":
+                    torch.save(discriminator.state_dict(), "{}.discriminator".format(save_best))
 
             if save != None and epoch % save_frequency == 0:
                 print("Saving model.")
                 torch.save(colorizer.state_dict(), save)
+
+                if loss == "gan":
+                    torch.save(discriminator.state_dict(), "{}.discriminator".format(save))
 
             print("-" * 30)
     except KeyboardInterrupt:
@@ -165,3 +171,6 @@ def train(
     if save != None:
         print("Saving final model.")
         torch.save(colorizer.state_dict(), save)
+
+        if loss == "gan":
+            torch.save(discriminator.state_dict(), "{}.discriminator".format(save))
