@@ -85,11 +85,11 @@ def train(
                 pass
         discriminator = discriminator.to(device)
         criterion = nn.BCELoss()
-        optimizer = optim.Adam(colorizer.parameters(), lr=learning_rate)
-        d_optimizer = optim.Adam(discriminator.parameters(), lr=learning_rate)
+        optimizer = optim.SGD(colorizer.parameters(), lr=learning_rate)
+        d_optimizer = optim.SGD(discriminator.parameters(), lr=learning_rate)
     else:
         criterion = nn.MSELoss()
-        optimizer = optim.Adam(colorizer.parameters(), lr=learning_rate)
+        optimizer = optim.SGD(colorizer.parameters(), lr=learning_rate)
 
     best_validation_loss = math.inf
 
