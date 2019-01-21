@@ -367,6 +367,70 @@ class ColorizerUNetV2(nn.Module):
 
         return output
 
+class ColorizerUNetV3(nn.Module):
+    def __init__(self):
+        super(ColorizerUNetV3, self).__init__()
+        self.conv1 = self.conv_block(1, 32)
+
+        self.down1 = self.down_block(32, 64)
+        self.down2 = self.down_block(64, 128)
+        self.down3 = self.down_block(128, 256)
+        self.down4 = self.down_block(256, 512)
+
+        self.up1, self.up1_conv = self.up_block(512, 256)
+        self.up2, self.up2_conv = self.up_block(256, 128)
+        self.up3, self.up3_conv = self.up_block(128, 64)
+        self.up4, self.up4_conv = self.up_block(64, 32)
+
+        self.conv2 = self.conv_block(32, 2)
+
+    def conv_block(self, in_dim, out_dim, kernel_size=3, padding=1, stride=1):
+        return nn.Sequential(
+            nn.Conv2d(in_dim, out_dim, kernel_size=kernel_size, padding=padding, stride=stride),
+            nn.BatchNorm2d(out_dim),
+            nn.ReLU()
+        )
+        
+    def down_block(self, in_dim, out_dim):
+        return nn.Sequential(
+            self.conv_block(in_dim, in_dim, stride=2),
+            self.conv_block(in_dim, out_dim)
+        )
+        
+    def up_block(self, in_dim, out_dim):
+        up = nn.ConvTranspose2d(in_dim, out_dim, kernel_size=2, stride=2)
+        conv = self.conv_block(out_dim * 2, out_dim)
+        
+        return up, conv
+    
+    def forward(self, inp):
+        conv1 = self.conv1(inp)
+        down1 = self.down1(conv1)
+        down2 = self.down2(down1)
+        down3 = self.down3(down2)
+        down4 = self.down4(down3)
+
+        up1 = self.up1(down4)
+        up1 = torch.cat((up1, down3), dim=1)
+        up1 = self.up1_conv(up1)
+
+        up2 = self.up2(up1)
+        up2 = torch.cat((up2, down2), dim=1)
+        up2 = self.up2_conv(up2)
+
+        up3 = self.up3(up2)
+        up3 = torch.cat((up3, down1), dim=1)
+        up3 = self.up3_conv(up3)
+
+        up4 = self.up4(up3)
+        up4 = torch.cat((up4, conv1), dim=1)
+        up4 = self.up4_conv(up4)
+
+        colormap = self.conv2(up4)
+
+        return colormap
+
+
 class Discriminator(nn.Module):
   def __init__(self):
     super(Discriminator, self).__init__()
@@ -409,5 +473,6 @@ models = {
     "v4": ColorizerV4,
     "unet-v1": ColorizerUNetV1,
     "unet-v2": ColorizerUNetV2,
+    "unet-v3": ColorizerUNetV3,
     "discriminator": Discriminator
 }
