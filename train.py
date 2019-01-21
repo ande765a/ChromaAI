@@ -63,6 +63,11 @@ def train(
             print("Could not load model.")
             pass
 
+    num_cuda_devices = torch.cuda.device_count()
+    print("Training on {} cuda devices.".format(num_cuda_devices))
+    if num_cuda_devices > 1:
+        colorizer = nn.DataParallel(colorizer)
+
     colorizer = colorizer.to(device)
 
     discriminator = None
