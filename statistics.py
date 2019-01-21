@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import torch.nn as nn
-
+ 
 def calculateStats(input_images, output_images, N, z):
     loss_func = nn.MSELoss(size_average=False)
     image_errors = np.zeros(N, dtype=float)
