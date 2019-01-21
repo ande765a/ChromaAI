@@ -129,6 +129,7 @@ def train(
                             fake_loss = criterion(discriminator(LAB_gen.detach()), invalid)
                             d_loss = (real_loss + fake_loss) / 2
                             d_loss.backward()
+                            d_optimizer.step()
 
                             running_train_loss += g_loss.item() * L.size(0)
 
