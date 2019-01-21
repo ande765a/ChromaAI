@@ -106,7 +106,7 @@ venv.bak/
 
 data
 results
-model.*
+models
 all_data
 stats
 logs
