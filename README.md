@@ -20,9 +20,12 @@ Argument                         | Usage
 mode                             | Eval for evaluation or train for training mode
 -h                               | Shows the avaliable arguments
 --output OUTPUT                  | Output path when evaluating
+--images-path IMAGES_PATH        | Path for the image dataset, should be a folder with 2 sub-folders, validation and training
 --model MODEL                    | Specify which model to load [v1 \| v2 \| v3 \| v3 \| unet-v1 \| unet-v2 \| unet-v3]
 --load LOAD                      | Path for loading trained parameters
 --save SAVE                      | Path for saving trained parameters
+--log-output LOG_OUTPUT          | Path for saving a .csv log over the training and validation loss
+--loss LOSS                      | Specify the loss function to use either gan or mse, defaults to mse: Mean Squared Error
 --no-l NO_L                      | Either True or False, when evaluating specify if you only want A&B channels
 --save-best SAVE_BEST            | Path for saving the best trained parameteres
 --save-frequency SAVE_FREQUENCY  | How often the program should save the parameters
